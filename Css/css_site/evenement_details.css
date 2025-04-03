@@ -1,0 +1,149 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #8e744b;
+    --accent-color: #c17817;
+    --accent-hover: #e88c1b;
+    --light-bg: #f8f9fa;
+    --text-color: #2c3e50;
+}
+
+.evenement-details-container {
+    margin-top: 0;
+    padding: 0;
+}
+
+.hero-section {
+    height: 60vh;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    padding: 2rem;
+}
+
+.evenement-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.evenement-info-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 2rem;
+    margin-top: -50px;
+    position: relative;
+    z-index: 2;
+}
+
+.evenement-main-info {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.evenement-description h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.evenement-description p {
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+.evenement-details {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.detail-item i {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+}
+
+.evenement-image-gallery {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.main-image {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.cta-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--light-bg);
+    margin-top: 4rem;
+}
+
+.cta-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 1.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background: var(--accent-hover);
+}
+
+@media (max-width: 768px) {
+    .evenement-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-section {
+        height: 40vh;
+    }
+
+    .evenement-content {
+        padding: 1rem;
+    }
+}
