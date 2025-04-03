@@ -1,6 +1,6 @@
-# POJECT CENTRE EQUESTRE
-## PROJECT POO
-### PROJECT DE GROUPE
+# POJET CENTRE EQUESTRE
+## POO(Programation Orientée Object)
+### EN GROUPE
 
 * Groupe De 3
     * Tom
