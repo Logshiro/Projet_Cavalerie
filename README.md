@@ -2,7 +2,8 @@
 ## PROJECT POO
 ### PROJECT DE GROUPE
 
-* En Groupe De 3
+* Groupe De 3
     * Tom
     * Quentin
     * Leonard
+![Image_Profil](https://github.com/user-attachments/assets/b978bdab-4dc6-4cfd-96a3-b3d82d15e27a)
