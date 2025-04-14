@@ -66,7 +66,7 @@ include '../PDO/bdd.inc.php';
         if (!empty($list)) {
             foreach ($list as $res) {
                 $Listecategorie = str_replace($_POST['keywordCL'], '<b>' . htmlspecialchars($_POST['keywordCL'], ENT_QUOTES) . '</b>', $res['NomCavalier']);
-                echo '<li data-id="' . $res['idCavalier'] . '">' . $Listecategorie . '</li>';
+                echo '<li onclick="set_item_CL(\'' . str_replace("'", "\'", $res['NomCavalier']) . '\', ' . $res['idCavalier'] . ')">' . $Listecategorie . '</li>';
             }
         } else {
             echo 'Aucun résultat trouvé';

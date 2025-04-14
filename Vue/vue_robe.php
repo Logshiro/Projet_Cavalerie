@@ -17,7 +17,7 @@ if(isset($_GET['action'])){
         break;
     case 'Voir': //Voir un produit  
         ob_start();
-        require_once '../Controleur/Robe/PHP_CRUD_Robe/détail_robe.php';
+        require_once '../Controleur/Robe/PHP_CRUD_Robe/detail_robe.php';
         $content = ob_get_clean();
         break;
     case 'Modifier': //Modifier un produit

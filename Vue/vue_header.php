@@ -34,9 +34,9 @@
                 <li><a href="vue_race.php">Race</a></li>
                 <li><a href="vue_robe.php">Robe</a></li>
                 <li><a href="vue_cours.php">Cours</a></li>
-                <li><a href="vue_prend.php">Prend</a></li>
-                <li><a href="vue_concours.php">Concours</a></li>
-                <li><a href="vue_inscrit.php">Inscrit Concours</a></li>
+                <!-- <li><a href="vue_prend.php">Prend</a></li> -->
+                <!-- <li><a href="vue_concours.php">Concours</a></li> -->
+                <!-- <li><a href="vue_inscrit.php">Inscrit Concours</a></li> -->
                 <li><a href="vue_calendrier.php">Calendrier</a></li>
 
                 <!--<li><a href="../../gestion_centre_equestre-ProjectC2/Vue/vue_calendrier.php">Calendrier</a></li>-->

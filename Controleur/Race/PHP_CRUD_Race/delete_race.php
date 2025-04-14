@@ -33,7 +33,7 @@ if(isset($_GET['id']) && !empty($_GET['id'])){
     $_SESSION['message'] = "Race supprimée avec succès";
     //On redirige vers la page de la liste
     header('Location: vue_race.php');
-    die();
+    // die();
 
 }else{
     //On affiche un message d'erreur

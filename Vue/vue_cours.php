@@ -26,7 +26,7 @@ if(isset($_GET['action'])){
         break;
     case 'Voir': //Voir un produit  
         ob_start();
-        require_once '../Controleur/Cours/PHP_CRUD_Cours/détail_cours.php';
+        require_once '../Controleur/Cours/PHP_CRUD_Cours/detail_cours.php';
         $content = ob_get_clean();
         break;
     case 'Modifier': //Modifier un produit

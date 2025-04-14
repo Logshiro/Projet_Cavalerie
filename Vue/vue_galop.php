@@ -17,7 +17,7 @@ if(isset($_GET['action'])){
         break;
     case 'Voir': //Voir un produit  
         ob_start();
-        require_once '../Controleur/Galop/PHP_CRUD_Galop/détail_galop.php';
+        require_once '../Controleur/Galop/PHP_CRUD_Galop/detail_galop.php';
         $content = ob_get_clean();
         break;
     case 'Modifier': //Modifier un produit

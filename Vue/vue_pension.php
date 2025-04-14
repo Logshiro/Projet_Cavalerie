@@ -19,7 +19,7 @@ if(isset($_GET['action'])){
         break;
         case 'Voir': //Voir une pension  
         ob_start();
-        require_once '../Controleur/Pension/PHP_CRUD_Pension/détail_pension.php';
+        require_once '../Controleur/Pension/PHP_CRUD_Pension/detail_pension.php';
         $content = ob_get_clean();
         break;
     case 'Modifier': //Modifier une pension

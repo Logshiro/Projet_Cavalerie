@@ -18,7 +18,7 @@ if(isset($_GET['action'])){
         break;
     case 'Voir': //Voir un Race  
         ob_start();
-        require_once '../Controleur/Race/PHP_CRUD_Race/détail_race.php';
+        require_once '../Controleur/Race/PHP_CRUD_Race/detail_race.php';
         $content = ob_get_clean();
         break;
     case 'Modifier': //Modifier une Race
