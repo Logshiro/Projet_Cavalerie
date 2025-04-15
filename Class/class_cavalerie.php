@@ -109,7 +109,21 @@ class Cavalerie
         $ligne = $req->fetch(PDO::FETCH_ASSOC);
         return $ligne;
     }
-
+    public function cavalerie_photo1($id) {
+        $Con = connexionPDO();
+        $SQL = "SELECT LibPhoto, idPhoto FROM photo WHERE RefNumsir = :Numsir AND Supprime = 0";
+        $req = $Con->prepare($SQL);
+        $req->bindParam(':Numsir', $id, PDO::PARAM_INT);
+        $req->execute();
+        $photos = $req->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Use absolute path relative to web root
+        foreach ($photos as &$photo) {
+            $photo['LibPhoto'] = '/gestion_centre_equestre-ProjectC2' . $photo['LibPhoto'];
+        }
+        
+        return $photos;
+    }
     public function cavalerie_photo($id){
         $Con = connexionPDO(); // Connection PDO
         $SQL = "SELECT LibPhoto,idPhoto FROM photo WHERE RefNumsir = :Numsir AND Supprime = 0";

@@ -31,6 +31,7 @@
             "calendrier" => "c_calendrier.php",
             "deconnexion" => "c_deconnexion.php",
             "espace_personnel" => "../../Vue/Vue_Site/vue_espace_personnel.php",
+            "photos_cavalier" => "../../modele/fonction/getImage.php",
         ];
 
         // Ensure the action is valid and return the corresponding file

@@ -93,7 +93,7 @@ session_start();
                     <p>60x20m avec sol fibré</p>
                 </div>
                 <div class="installation-item">
-                    <img src="image/carrière.jpg" alt="Carrière">
+                    <img src="image/maneges_2.jpg" alt="Carrière">
                     <h3>Carrière</h3>
                     <p>80x40m en sable de Fontainebleau</p>
                 </div>
