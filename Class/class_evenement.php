@@ -70,7 +70,22 @@ class Evenement
         // recupère le 1° enregistrement sous forme de tableau
         return $req->fetch();
     }   
-
+    
+    public function evenement_photo1($id) {
+        $Con = connexionPDO();
+        $SQL = "SELECT LibPhoto, idPhoto FROM photo WHERE RefEvenement = :idEvenement AND Supprime = 0";
+        $req = $Con->prepare($SQL);
+        $req->bindParam(':idEvenement', $id, PDO::PARAM_INT);
+        $req->execute();
+        $photos = $req->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Use absolute path
+        foreach ($photos as &$photo) {
+            $photo['LibPhoto'] = '/gestion_centre_equestre-ProjectC2' . $photo['LibPhoto'];
+        }
+        
+        return $photos;
+    }
     public function evenement_photo($id){
         $Con = connexionPDO();
         $SQL = "SELECT LibPhoto, idPhoto FROM photo WHERE RefEvenement = :idEvenement AND Supprime = 0";
