@@ -113,6 +113,7 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
                 <button type="submit" name="action" value="<?= $isEditing ? 'Modifier' : 'Ajouter'; ?>" class="btn btn-primary">
                     <?= $isEditing ? 'Modifier' : 'Ajouter'; ?>
                 </button>
+            </form>
 
                 <?php if ($isEditing && !empty($photos)): ?>
                     <div class="row mt-4">
@@ -151,7 +152,6 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
                         </div>
                     </div>
                 <?php endif; ?>
-            </form>
         </main>
     <?php endif; ?>
 
