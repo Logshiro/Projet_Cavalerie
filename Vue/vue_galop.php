@@ -1,47 +1,23 @@
 <?php
-// Par Quentin Mitou
-// include_once __DIR__ . '/../modele/fonction/conexion_v.php';
-
+session_start();
 require 'vue_header.php';
-// Modifier le chemin pour utiliser le chemin absolu depuis la racine du projet
 require_once __DIR__ . '/../Class/class_galop.php';
 
-//On vérifie si l'action est définie dans l'url
-if(isset($_GET['action'])){
-    //On vérifie l'action
-    switch($_GET['action']){
-        case 'add': //Ajouter un produit
-        ob_start();
-        require_once '../Controleur/Galop/PHP_CRUD_Galop/add_galop.php';
-        $content = ob_get_clean();
-        break;
-    case 'Voir': //Voir un produit  
-        ob_start();
-        require_once '../Controleur/Galop/PHP_CRUD_Galop/detail_galop.php';
-        $content = ob_get_clean();
-        break;
-    case 'Modifier': //Modifier un produit
-        ob_start();
-        require_once '../Controleur/Galop/PHP_CRUD_Galop/edit_galop.php';
-        $content = ob_get_clean();
-        break;
-    case 'Supprimer': //Supprimer un produit
-        ob_start();
-        require_once '../Controleur/Galop/PHP_CRUD_Galop/delete_galop.php';
-        $content = ob_get_clean();
-        break;
-    default:
-        $content = '<div class="alert alert-warning">Action non reconnue</div>';
-    }
-}
+// Récupération des données via les paramètres GET
+$idGalop = isset($_GET['id']) ? $_GET['id'] : '';
+$isEditing = !empty($idGalop);
 
+// Contrôle de la visibilité des formulaires selon l'action spécifiée
+$formVisible1 = isset($_GET['action']) && ($_GET['action'] === 'Voir');
+$formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['action'] === 'Modifier');
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des Galops</title>
+    <title>Gestion des Galops</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" 
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -49,74 +25,111 @@ if(isset($_GET['action'])){
     <link rel="stylesheet" href="../Css/Css_vue.css">
 </head>
 <body>
-    <main class="container">
-        <div class="row">
-            <section class = "col-12">
-                <?php
-                //On vérifie si un message d'erreur est présent
-                if(isset($_SESSION['erreur'])){
-                    echo "<div class='alert alert-danger'>".$_SESSION['erreur']."</div>";
-                    unset($_SESSION['erreur']);
-                }
-                //On vérifie si un message de succès est présent
-                if(isset($_SESSION['message'])){
-                    echo "<div class='alert alert-success'>".$_SESSION['message']."</div>";
-                    unset($_SESSION['message']);
-                }
-                // Si on a du contenu spécifique à une action, on l'affiche
-                if(!empty($content)){
-                    echo $content;
-                } else {
-                ?>
-                <h1>Liste des Galops</h1>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>NomGalop</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        //On crée un nouvel objet Galop
-                        $galop = new Galop("","");
-                        //On récupère toutes les lignes de la table
-                        $allGalop = $galop->galop_all();
-                        //on parcourt toutes les lignes de la table
-                        foreach ($allGalop as $ligne) {
-                            ?>
-                            <tr>
-                                <!-- On affiche l'id du produit -->
-                                <td><?= htmlspecialchars($ligne['idGalop']); ?></td>
-                                <!-- On affiche le NomGalop -->
-                                <td><?= htmlspecialchars($ligne['LibGalop']); ?></td>
-                                <!-- On crée un lien pour voir les détails du Galop -->
-                                <td><a href="vue_galop.php?id=<?= $ligne['idGalop']; ?>&action=Voir" class="btn btn-primary">Voir</a>
-                                <a href="vue_galop.php?id=<?= $ligne['idGalop']; ?>&action=Modifier" class="btn btn-warning">Modifier</a>
-                                <a href="vue_galop.php?id=<?= $ligne['idGalop']; ?>&action=Supprimer" class="btn btn-danger">Supprimer</a></td>
-                            </tr>
-                            <?php
-                        }
-                        ?>
-                    </tbody>
-                </table>
-                <form method="get">
-                <div class="action-buttons">
-                        <form method="get" style="display: inline;">
-                            <button type="submit" name="action" value="add" class="btn btn-primary">Ajouter un Galop</button>
-                        </form>
-                        <a href="../Class/PDF/class_GalopPDF.php" target="_blank" class="btn btn-pdf">
-                            <i class="fas fa-file-pdf"></i>
-                        </a>
-                    </div>
-                </form>
-                <?php
-            }
-            ?>
-        </section>
+<div class="container mt-5">
+    <h1 class="mb-4">Gestion des Galops</h1>
+
+    <!-- Affichage des messages de succès/erreur -->
+    <?php if (!empty($_SESSION['message'])): ?>
+        <div class="alert alert-success">
+            <?= htmlspecialchars($_SESSION['message']); unset($_SESSION['message']); ?>
+        </div>
+    <?php endif; ?>
+    <?php if (!empty($_SESSION['erreur'])): ?>
+        <div class="alert alert-danger">
+            <?= htmlspecialchars($_SESSION['erreur']); unset($_SESSION['erreur']); ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Formulaire de visualisation -->
+    <?php if ($formVisible1): 
+        $galop = new Galop("", "");
+        $galopData = $galop->galop_id($idGalop);
+        ?>
+        <main class="container">
+            <div class="row">
+                <section class="col-12">
+                    <h3>Détails du Galop</h3>
+                    <p><strong>ID :</strong> <?= htmlspecialchars($galopData['idGalop']); ?></p>
+                    <p><strong>Nom :</strong> <?= htmlspecialchars($galopData['LibGalop']); ?></p>
+                </section>
+            </div>
+        </main>
+    <?php endif; ?>
+
+    <!-- Formulaire d'ajout ou de modification -->
+    <?php if ($formVisible2):      
+        $galop = new Galop("", "");
+        $galopData = $isEditing ? $galop->galop_id($idGalop) : null;
+        ?>
+        <main class="container">
+            <form method="post" action="../Controleur/Galop/PHP_CRUD_Galop/traitement_galop.php" class="mb-4">
+                <h3><?= $isEditing ? 'Modifier un Galop' : 'Ajouter un Galop'; ?></h3>
+                <div class="form-group mb-3">
+                    <label for="LibGalop">Nom du Galop</label>
+                    <input type="text" name="LibGalop" id="LibGalop" class="form-control"
+                        value="<?= $isEditing ? htmlspecialchars($galopData['LibGalop']) : '' ?>" required>
+                    <?php if ($isEditing): ?>
+                        <input type="hidden" name="idGalop" value="<?= htmlspecialchars($idGalop); ?>">
+                    <?php endif; ?>
+                </div>
+                <button type="submit" name="action" value="<?= $isEditing ? 'Modifier' : 'Ajouter'; ?>" class="btn btn-primary">
+                    <?= $isEditing ? 'Modifier' : 'Ajouter'; ?>
+                </button>
+            </form>
+        </main>
+    <?php endif; ?>
+
+    <!-- Tableau affichant les galops existants -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nom Galop</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+            $galop = new Galop("", "");
+            $allGalop = $galop->galop_all();
+
+            if ($allGalop && is_array($allGalop)) {
+                foreach ($allGalop as $ligne) : ?>
+                    <tr>
+                        <td><?= htmlspecialchars($ligne['idGalop']); ?></td>
+                        <td><?= htmlspecialchars($ligne['LibGalop']); ?></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="?id=<?= urlencode($ligne['idGalop']); ?>&action=Voir" class="btn btn-primary btn-sm">Voir</a>
+                                <a href="?id=<?= urlencode($ligne['idGalop']); ?>&action=Modifier" class="btn btn-warning btn-sm">Modifier</a>
+                                <form method="post" action="../Controleur/Galop/PHP_CRUD_Galop/traitement_galop.php" style="display:inline-block;">
+                                    <input type="hidden" name="idGalop" value="<?= htmlspecialchars($ligne['idGalop']); ?>">
+                                    <button type="submit" name="action" value="Supprimer" class="btn btn-danger btn-sm" 
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce galop ?')">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach;
+            } else { ?>
+                <tr>
+                    <td colspan="3" class="text-center">Aucun galop trouvé.</td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
     </div>
-    
-</main>
+
+    <div class="action-buttons mt-4">
+        <form method="get" style="display: inline;">
+            <button type="submit" name="action" value="add" class="btn btn-primary">Ajouter un Galop</button>
+        </form>
+        <a href="../Class/PDF/class_GalopPDF.php" target="_blank" class="btn btn-secondary">
+            <i class="fas fa-file-pdf"></i> Exporter en PDF
+        </a>
+    </div>
+</div>
+<script src="../Js/Js_liste_formulaire.js"></script>
 </body>
 </html>

@@ -42,7 +42,22 @@ class Inscrit
     // Méthode pour récupérer un inscrit par son id
     public function inscrit_id($refcavalier, $refcours){
         $Con = connexionPDO(); // Connexion PDO
-        $SQL = "Select RefCavalier,RefCours from inscrit where RefCavalier = :RefCavalier AND RefCours = :RefCours";
+        $SQL = "Select RefCavalier,RefCours from inscrit where RefCavalier = :RefCavalier AND RefCours = :RefCours and Supprime = 0";
+        //On prépare la requête
+        $req = $Con->prepare($SQL);
+        //On lie les paramètres
+        $req->bindParam(':RefCours', $refcours, PDO::PARAM_INT);
+        $req->bindParam(':RefCavalier', $refcavalier, PDO::PARAM_INT);
+        //On exécute la requête
+        $req->execute();
+        //On récupère le 1° enregistrement sous forme de tableau
+        return $req->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Méthode pour récupérer un inscrit par son id
+    public function inscrit_id_sup($refcavalier, $refcours){
+        $Con = connexionPDO(); // Connexion PDO
+        $SQL = "Select RefCavalier,RefCours from inscrit where RefCavalier = :RefCavalier AND RefCours = :RefCours and Supprime = 1";
         //On prépare la requête
         $req = $Con->prepare($SQL);
         //On lie les paramètres
@@ -87,32 +102,56 @@ class Inscrit
 
     // Méthode pour ajouter un inscrit
     public function add(){
-        $Con = connexionPDO(); // Connexion PDO
-        $SQL = "Insert into inscrit (RefCavalier, RefCours) values (:RefCavalier, :RefCours)";
-        //On prépare la requête
-        $req = $Con->prepare($SQL);
-        //On lie les paramètres
-        $req->bindParam(':RefCavalier', $this->refcavalier, PDO::PARAM_INT);
-        $req->bindParam(':RefCours', $this->refcours, PDO::PARAM_INT);
-        //On exécute la requête
-        return $req->execute();
+        if ($this->inscrit_id_sup($this->refcavalier, $this->refcours) == null){
+            $Con = connexionPDO(); // Connexion PDO
+            $SQL = "Insert into inscrit (RefCavalier, RefCours) values (:RefCavalier, :RefCours)";
+            //On prépare la requête
+            $req = $Con->prepare($SQL);
+            //On lie les paramètres
+            $req->bindParam(':RefCavalier', $this->refcavalier, PDO::PARAM_INT);
+            $req->bindParam(':RefCours', $this->refcours, PDO::PARAM_INT);
+            //On exécute la requête
+            return $req->execute();
+        }else{
+            $Con = connexionPDO(); // Connexion PDO
+            $SQL = "Update inscrit set Supprime = 0 where RefCavalier = :RefCavalier and RefCours = :RefCours";
+            //On prépare la requête
+            $req = $Con->prepare($SQL);
+            //On lie les paramètres
+            $req->bindParam(':RefCours', $this->refcours, PDO::PARAM_INT);
+            $req->bindParam(':RefCavalier', $this->refcavalier, PDO::PARAM_INT);
+            //On exécute la requête
+            return $req->execute();
+        }
     }
 
 
 
     // Méthode pour modifier un inscrit
     public function edit($id1, $id2) {
-        $Con = connexionPDO(); // Connexion PDO
-        $SQL = "Update inscrit set RefCours = :RefCours, RefCavalier = :RefCavalier where RefCavalier = :id1 and RefCours = :id2";
-        //On prépare la requête
-        $req = $Con->prepare($SQL);
-        //On lie les paramètres
-        $req->bindParam(':RefCours', $this->refcours, PDO::PARAM_INT);
-        $req->bindParam(':RefCavalier', $this->refcavalier, PDO::PARAM_INT);
-        $req->bindParam(':id1', $id1, PDO::PARAM_INT);
-        $req->bindParam(':id2', $id2, PDO::PARAM_INT);
-        //On exécute la requête
-        return $req->execute();
+        if ($this->inscrit_id_sup($this->refcavalier, $this->refcours) == null){
+            $Con = connexionPDO(); // Connexion PDO
+            $SQL = "Update inscrit set RefCours = :RefCours, RefCavalier = :RefCavalier where RefCavalier = :id1 and RefCours = :id2";
+            //On prépare la requête
+            $req = $Con->prepare($SQL);
+            //On lie les paramètres
+            $req->bindParam(':RefCours', $this->refcours, PDO::PARAM_INT);
+            $req->bindParam(':RefCavalier', $this->refcavalier, PDO::PARAM_INT);
+            $req->bindParam(':id1', $id1, PDO::PARAM_INT);
+            $req->bindParam(':id2', $id2, PDO::PARAM_INT);
+            //On exécute la requête
+            return $req->execute();
+        }else{
+            $Con = connexionPDO(); // Connexion PDO
+            $SQL = "Update inscrit set Supprime = 0 where RefCavalier = :RefCavalier and RefCours = :RefCours";
+            //On prépare la requête
+            $req = $Con->prepare($SQL);
+            //On lie les paramètres
+            $req->bindParam(':RefCours', $this->refcours, PDO::PARAM_INT);
+            $req->bindParam(':RefCavalier', $this->refcavalier, PDO::PARAM_INT);
+            //On exécute la requête
+            return $req->execute();
+        }
     }
 
     // Méthode pour supprimer un inscrit

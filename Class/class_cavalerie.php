@@ -56,6 +56,10 @@ class Cavalerie
     }
 
     // Setters
+    public function setNumsir($numsir)
+    {
+        $this->numsir = $numsir;
+    }
 
     public function setNomcheval($nomcheval)
     {
