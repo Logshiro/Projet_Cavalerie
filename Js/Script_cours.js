@@ -1,4 +1,3 @@
-
 // autocompletion
 function autocompletGalop() {
     var min_length = 1; 
@@ -10,7 +9,7 @@ function autocompletGalop() {
             url: '../Ajax/ajax_refresh_cours.php', // Fichier PHP pour traiter la requête
             type: 'POST',
             data: { 
-                keyword: keyword,  // Envoi du mot-clé pour la recherche
+                keywordGalop: keyword,  // Envoi du mot-clé pour la recherche
             },
             success: function(data) {
                 $('#nom_list_idGalop').show(); // Afficher les suggestions
@@ -25,12 +24,11 @@ function autocompletGalop() {
     }
 }
 
-function set_item(item,idMod) {
+function set_item_Galop(item,idGalop) {
     $('#RefGalop').val(item); // Mettre à jour le champ texte avec la valeur sélectionnée
     $('#nom_list_idGalop').hide(); // Cacher la liste des suggestions
-    $('#idGalop').val(idMod); // Mettre à jour le champ caché avec l'ID de la commune
+    $('#idGalop').val(idGalop); // Mettre à jour le champ caché avec l'ID
 }
-
 
 function autocompletGalopI() {
     var min_length = 1; // Minimum de caractères avant de déclencher l'autocomplétion
@@ -40,7 +38,7 @@ function autocompletGalopI() {
         $.ajax({
             url: '../Ajax/ajax_refresh_cours.php', // URL de la requête pour obtenir les résultats
             type: 'POST',
-            data: {keywordInsert:keyword},
+            data: {keywordGalopI:keyword},
             success: function(data) {
                 $('#nom_list_idGalop').show(); // Affiche les suggestions
                 $('#nom_list_idGalop').html(data); // Insère les suggestions dans la liste
@@ -53,32 +51,33 @@ function autocompletGalopI() {
         $('#nom_list_idGalop').hide(); // Masque les suggestions si le mot-clé est trop court
     }
 }
-function set_item_Insert(item, idMod) {
+
+function set_item_GalopI(item, idGalop) {
     // Met à jour le champ avec la valeur sélectionnée
     $('#RefGalop').val(item);
     // Masque la liste de suggestions
     $('#nom_list_idGalop').hide();
-    // Met à jour le champ caché avec l'ID de la catégorie
-    $('#idGalop').val(idMod);
+    // Met à jour le champ caché avec l'ID
+    $('#idGalop').val(idGalop);
 }
 
 function autocompletCL() {
     var min_length = 1; 
-    var keyword = $('#RefCavalier' ).val(); // Récupérer la valeur du champ texte
-        
+    var keyword = $('#RefCavalier').val(); // Récupérer la valeur du champ texte
+    
     // Vérifier si le nombre de caractères est suffisant
-    if (keyword.length >= min_length) { 
+    if (keyword.length >= min_length) {
         $.ajax({
-            url: '../Ajax/ajax_refresh_pension.php', // Fichier PHP pour traiter la requête
-                type: 'POST',
-                data: { 
-                    keywordCL: keyword,  // Envoi du mot-clé pour la recherche       // Envoi de l'index pour identifier le champ
-                },
-                success: function(data) {
-                    $('#nom_list_idCL' ).show(); // Afficher les suggestions
-                    $('#nom_list_idCL' ).html(data); // Insérer les suggestions dans la liste
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
+            url: '../Ajax/ajax_refresh_cours.php', // Fichier PHP pour traiter la requête
+            type: 'POST',
+            data: { 
+                keywordCL: keyword,  // Envoi du mot-clé pour la recherche
+            },
+            success: function(data) {
+                $('#nom_list_idCL').show(); // Afficher les suggestions
+                $('#nom_list_idCL').html(data); // Insérer les suggestions dans la liste
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
                 console.log("Erreur Ajax : " + textStatus + " - " + errorThrown); // Loguer l'erreur en cas de problème
             }
         });
@@ -103,7 +102,7 @@ function autocomplet_InsertCL(uniqueId = '') {
     
     if (keyword.length >= min_length) {
         $.ajax({
-            url: '../Ajax/ajax_refresh_pension.php',
+            url: '../Ajax/ajax_refresh_cours.php',
             type: 'POST',
             data: { 
                 keywordInsertCL: keyword,

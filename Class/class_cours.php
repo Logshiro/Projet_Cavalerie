@@ -172,17 +172,23 @@ class Cours
     }
     public function add(){
         $Con = connexionPDO(); // Connection PDO
-        $SQL = "INSERT INTO 
-                `cours` (`Libcours`,`jour`,`HD`,`HF`,`RefGalop`) 
-                VALUES 
-                (:Libcours, :jour, :HD, :HF, :idGalop)";
-        //Prépare la requête
-        $req = $Con->prepare($SQL);
+        try {
+            $SQL = "INSERT INTO 
+                    `cours` (`Libcours`,`jour`,`HD`,`HF`,`RefGalop`) 
+                    VALUES 
+                    (:Libcours, :jour, :HD, :HF, :idGalop)";
+            //Prépare la requête
+            $req = $Con->prepare($SQL);
 
-        //variables php -> sql
-        $data = [":Libcours" => $this->libcours, ":jour" => $this->jourC,":HD" => $this->horaireD, 
-        ":HF" => $this->horaireF, ":idGalop" => $this->idGalop];
-        $req->execute($data);
+            //variables php -> sql
+            $data = [":Libcours" => $this->libcours, ":jour" => $this->jourC,":HD" => $this->horaireD, 
+            ":HF" => $this->horaireF, ":idGalop" => $this->idGalop];
+            
+            return $req->execute($data);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de l'ajout du cours: " . $e->getMessage());
+            return false;
+        }
     }
     public function getCoursAssADD($idCours, $Rep){
         $Con = connexionPDO();

@@ -49,9 +49,9 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
         $cavalerieData = $cavalerie->cavalerie_id($idCavalerie);
         $photos = $cavalerie->cavalerie_photo($idCavalerie);
         ?>
-        <main class="container">
-            <div class="row">
-                <section class="col-12">
+    <main class="container">
+        <div class="row">
+            <section class="col-12">
                     <h3>Détails de la Cavalerie</h3>
                     <p><strong>ID :</strong> <?= htmlspecialchars($cavalerieData['NumSir']); ?></p>
                     <p><strong>Nom :</strong> <?= htmlspecialchars($cavalerieData['NomCheval']); ?></p>
@@ -191,16 +191,16 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
             <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Nom</th>
-                    <th>Date de naissance</th>
-                    <th>Garot</th>
-                    <th>Race</th>
-                    <th>Robe</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php
+                                <th>Nom</th>
+                                <th>Date de naissance</th>
+                                <th>Garot</th>
+                                <th>Race</th>
+                                <th>Robe</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
             $cavalerie = new Cavalerie("", "", "", "", "", "");
             $allCavalerie = $cavalerie->cavalerie_all();
 
@@ -221,7 +221,7 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
                                     <input type="hidden" name="id" value="<?= htmlspecialchars($ligne['NumSir']); ?>">
                                     <button type="submit" name="action" value="Supprimer" class="btn btn-danger btn-sm" 
                                         onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette cavalerie ?')">Supprimer</button>
-                                </form>
+                                        </form>
                             </div>
                         </td>
                     </tr>
@@ -229,21 +229,21 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
             } else { ?>
                 <tr>
                     <td colspan="7" class="text-center">Aucune cavalerie trouvée.</td>
-                </tr>
+                                </tr>
             <?php } ?>
-            </tbody>
-        </table>
+                        </tbody>
+                    </table>
     </div>
 
     <div class="action-buttons mt-4">
-        <form method="get" style="display: inline;">
-            <button type="submit" name="action" value="add" class="btn btn-primary">Ajouter une Cavalerie</button>
-        </form>
+                        <form method="get" style="display: inline;">
+                            <button type="submit" name="action" value="add" class="btn btn-primary">Ajouter une Cavalerie</button>
+                        </form>
         <a href="../Class/PDF/class_CavaleriePDF.php" target="_blank" class="btn btn-secondary">
             <i class="fas fa-file-pdf"></i> Exporter en PDF
-        </a>
-    </div>
-</div>
+                        </a>
+                    </div>
+        </div>
 <script src="../Js/Js_liste_formulaire.js"></script>
 </body>
 </html>

@@ -48,8 +48,8 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
         $evenementData = $evenement->evenement_id($idEvenement);
         $photos = $evenement->evenement_photo($idEvenement);
         ?>
-        <main class="container">
-            <div class="row">
+    <main class="container">
+        <div class="row">
                 <section class="col-12">
                     <h3>Détails de l'Événement</h3>
                     <p><strong>ID :</strong> <?= htmlspecialchars($evenementData['idEvenement']); ?></p>
@@ -159,21 +159,21 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="thead-dark">
-                <tr>
+                        <tr>
                     <th>ID</th>
-                    <th>Titre</th>
-                    <th>Commentaire</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
+                            <th>Titre</th>
+                            <th>Commentaire</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
                 $evenement = new Evenement("", "", "");
                 $allEvenement = $evenement->Evenement_All();
 
                 if ($allEvenement && is_array($allEvenement)) {
                     foreach ($allEvenement as $ligne) : ?>
-                        <tr>
+                            <tr>
                             <td><?= htmlspecialchars($ligne['idEvenement']); ?></td>
                             <td><?= htmlspecialchars($ligne['TitreE']); ?></td>
                             <td><?= htmlspecialchars($ligne['CommentaireE']); ?></td>
@@ -193,19 +193,19 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
                 } else { ?>
                     <tr>
                         <td colspan="4" class="text-center">Aucun événement trouvé.</td>
-                    </tr>
+                            </tr>
                 <?php } ?>
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
     </div>
 
     <div class="action-buttons mt-4">
-        <form method="get" style="display: inline;">
+                        <form method="get" style="display: inline;">
             <button type="submit" name="action" value="add" class="btn btn-primary">Ajouter un Événement</button>
-        </form>
+                        </form>
         <a href="../Class/PDF/class_EvenementPDF.php" target="_blank" class="btn btn-secondary">
             <i class="fas fa-file-pdf"></i> Exporter en PDF
-        </a>
+                        </a>
     </div>
 </div>
 <script src="../Js/Js_liste_formulaire.js"></script>
