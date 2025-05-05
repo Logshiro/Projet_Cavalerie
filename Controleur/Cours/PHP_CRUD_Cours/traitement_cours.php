@@ -35,6 +35,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die();
     }
 
+    // Traitement de la suppression des inscription et participation
+    if ($action === 'delete_inscrit') {
+        if(isset($_POST['id']) && !empty($_POST['id'] &&
+         isset($_POST['idC']) && !empty($_POST['idC']))) {
+            $idCava = strip_tags($_POST['idC']);
+            $idCours = strip_tags($_POST['id']);
+            
+            // Suppression des inscriptions associées
+            $inscrit = new Inscrit($idCava, $idCours);
+            $success1 = $inscrit->delete();
+            
+            // Suppression des participations associées
+            $participe = new Participe("", $idCours, $idCava,"");
+            $success2 = $participe->delete_idCava();
+            
+            if($success1 && $success2){
+                $_SESSION['message'] = "Cours supprimé avec succès";
+            } else {
+                $_SESSION['erreur'] = "Erreur lors de la suppression des inscriptions ou des participations";
+            }
+            
+        } else {
+            $_SESSION['erreur'] = "ID de cours ou cavalier manquant pour la suppression";
+        }
+        header('Location: ../../../Vue/vue_cours.php?id=' . $idCours . '&action=Modifier');
+        die();
+    }
+
     // Vérification des champs requis
     $requiredFields = ['Libcours', 'jour', 'HD', 'HF', 'idGalop'];
     foreach ($requiredFields as $field) {
@@ -80,24 +108,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Les séances n'ont pas été correctement créées dans le calendrier");
             }
 
-            $Seances = $cours->getallSeanceCours($idCours);
-            
-            // Ajout des inscriptions pour les cavaliers
             if (isset($_POST['idCL']) && is_array($_POST['idCL'])) {
-                foreach ($_POST['idCL'] as $RefCavalier) {
-                    $cleanRefCavalier = strip_tags($RefCavalier);
-                    
-                    // Inscription du cavalier au cours
-                    $inscrit = new Inscrit($cleanRefCavalier, $idCours);
-                    if (!$inscrit->add()) {
-                        throw new Exception("Erreur lors de l'inscription du cavalier");
-                    }
-                    
-                    // Ajout des participations pour chaque séance
-                    foreach ($Seances as $seance) {
-                        $participe = new Participe($seance['idCourSeance'], $idCours, $cleanRefCavalier, true);
-                        if (!$participe->add($seance['idCourSeance'], $idCours, $cleanRefCavalier)) {
-                            throw new Exception("Erreur lors de l'ajout de la participation");
+                // Filtrer les cavaliers valides (non vides)
+                $cavaliersValid = array_filter($_POST['idCL'], function($cav) {
+                    return !empty(trim($cav));
+                });
+                if (!empty($cavaliersValid)) {
+                    // Ajout des inscriptions pour les cavaliers
+                    if (isset($_POST['idCL']) && is_array($_POST['idCL'])) {
+                        foreach ($_POST['idCL'] as $RefCavalier) {
+                            $cleanRefCavalier = strip_tags($RefCavalier);
+                            
+                            // Inscription du cavalier au cours
+                            $inscrit = new Inscrit($cleanRefCavalier, $idCours);
+                            if (!$inscrit->add()) {
+                                throw new Exception("Erreur lors de l'inscription du cavalier");
+                            }
+                            
+                            // Ajout des participations pour chaque séance
+                            foreach ($Seances as $seance) {
+                                $participe = new Participe($seance['idCourSeance'], $idCours, $cleanRefCavalier, true);
+                                if (!$participe->add($seance['idCourSeance'], $idCours, $cleanRefCavalier)) {
+                                    throw new Exception("Erreur lors de l'ajout de la participation");
+                                }
+                            }
                         }
                     }
                 }
@@ -117,26 +151,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if(isset($_POST['id']) && !empty($_POST['id'])) {
             $id = strip_tags($_POST['id']);
             $cours = new Cours($id, $Libcours, $jour, $HD, $HF, $RefGalop);
-            
+            var_dump($id, $Libcours, $jour, $HD, $HF, $RefGalop);
             if($cours->edit()) {
                 // Mise à jour des inscriptions
                 if (isset($_POST['idCL']) && is_array($_POST['idCL'])) {
-                    // Suppression des anciennes inscriptions
-                    $inscrit = new Inscrit("", $id);
-                    $inscrit->delete_idCours($id);
-                    
-                    // Ajout des nouvelles inscriptions
-                    foreach ($_POST['idCL'] as $RefCavalier) {
-                        $cleanRefCavalier = strip_tags($RefCavalier);
-                        $inscrit = new Inscrit($cleanRefCavalier, $id);
-                        $inscrit->add();
-                        
-                        // Mise à jour des participations
-                        $idSeances = $cours->getallSeanceCours($id);
-                        if (!empty($idSeances)) {
-                            foreach ($idSeances as $idSeance) {
-                                $participe = new Participe($idSeance['idCourSeance'], $id, $cleanRefCavalier, true);
-                                $participe->add($idSeance['idCourSeance'], $id, $cleanRefCavalier);
+                    // Filtrer les cavaliers valides (non vides)
+                    $cavaliersValid = array_filter($_POST['idCL'], function($cav) {
+                        return !empty(trim($cav));
+                    });
+                
+                    if (!empty($cavaliersValid)) {
+                        foreach ($cavaliersValid as $RefCavalier) {
+                            $cleanRefCavalier = strip_tags($RefCavalier);
+                            $inscrit = new Inscrit($cleanRefCavalier, $id);
+                            $inscrit->add($cleanRefCavalier, $id);
+                
+                            // Ajout participations
+                            $idSeances = $cours->getallSeanceCours($id);
+                            if (!empty($idSeances)) {
+                                foreach ($idSeances as $idSeance) {
+                                    $participe = new Participe($idSeance['idCourSeance'], $id, $cleanRefCavalier, true);
+                                    $participe->add($idSeance['idCourSeance'], $id, $cleanRefCavalier);
+                                }
                             }
                         }
                     }

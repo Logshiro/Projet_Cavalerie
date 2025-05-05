@@ -57,7 +57,7 @@ class Inscrit
     // Méthode pour récupérer un inscrit par son id
     public function inscrit_id_sup($refcavalier, $refcours){
         $Con = connexionPDO(); // Connexion PDO
-        $SQL = "Select RefCavalier,RefCours from inscrit where RefCavalier = :RefCavalier AND RefCours = :RefCours and Supprime = 1";
+        $SQL = "Select RefCavalier,RefCours from inscrit where RefCavalier = :RefCavalier AND RefCours = :RefCours";
         //On prépare la requête
         $req = $Con->prepare($SQL);
         //On lie les paramètres
@@ -147,8 +147,8 @@ class Inscrit
             //On prépare la requête
             $req = $Con->prepare($SQL);
             //On lie les paramètres
-            $req->bindParam(':RefCours', $this->refcours, PDO::PARAM_INT);
-            $req->bindParam(':RefCavalier', $this->refcavalier, PDO::PARAM_INT);
+            $req->bindParam(':RefCours', $id1, PDO::PARAM_INT);
+            $req->bindParam(':RefCavalier', $id2, PDO::PARAM_INT);
             //On exécute la requête
             return $req->execute();
         }

@@ -121,7 +121,7 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
                 <div class="form-group mb-3" id="cavalierFields">
                     <label for="RefCavalier">Nom du cavalier</label>
                     <input type="text" id="RefCavalier" name="RefCavalier[]" class="form-control"
-                        onkeyup="autocomplet_InsertCL()" required>
+                        onkeyup="autocomplet_InsertCL()">
                     <div id="nom_list_idCLI" class="list-group"></div>
                     <input type="hidden" name="idCL[]" id="idCL">
                 </div>
@@ -138,8 +138,50 @@ $formVisible2 = isset($_GET['action']) && ($_GET['action'] === 'add' || $_GET['a
                     <?= $isEditing ? 'Modifier' : 'Ajouter'; ?>
                 </button>
             </form>
+            <?php if ($isEditing): ?>
+            <?php
+            $inscritObj = new Inscrit("", "");
+            $inscrits = $inscritObj->inscrit_all(); ?> 
+            <main class="container">
+            <div class="row">
+            <section class="col-12">
+            <h4 class="mt-4">Cavaliers inscrits</h4>
+            <ul class="list-group">
+            <?php
+            foreach ($inscrits as $inscrit) {
+                if ($inscrit["RefCours"] == $idCours) {
+                    $nomCavalier = $inscritObj->getCavalierInscrit($inscrit["RefCavalier"]);
+                    ?>
+                    <li class="list-group-item">
+                    <label for="jour">Nom Cavalier</label>
+                    <tr>
+                        <td><?= htmlspecialchars($nomCavalier); ?></td>
+                        <td>
+                            <form method="post" action="../Controleur/Cours/PHP_CRUD_Cours/traitement_cours.php" class="d-inline">
+                                <input type="hidden" name="action" value="delete_inscrit">
+                                <input type="hidden" name="RefC" value="<?= htmlspecialchars($nomCavalier); ?>">
+                                <input type="hidden" name="id" value="<?= htmlspecialchars($idCours); ?>">
+                                <input type="hidden" name="idC" value="<?= $inscrit["RefCavalier"]; ?>">
+                                <button type="submit" class="btn btn-danger btn-sm" style="float: right;"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette inscription ?')">
+                                    Supprimer
+                                </button>
+                                
+                            </form>
+                        </td>
+                    </tr>
+                </li>
+                    <?php
+                }
+            }
+            ?>
+                </ul>
+            </section>
+        </div>
         </main>
+        <?php endif; ?>
     <?php endif; ?>
+    
 
     <!-- Tableau affichant les cours existants -->
     <div class="table-responsive">

@@ -1,0 +1,392 @@
+/* Variables CSS pour mode clair et sombre */
+:root {
+  --primary-color: #2C3E50;    /* Bleu foncé */
+  --secondary-color: #8B4513;  /* Marron sellerie */
+  --accent-color: #DAA520;     /* Or/Cuivre */
+  --light-color: #F5F5DC;      /* Beige */
+  --success-color: #2E7D32;    /* Vert prairie */
+  --danger-color: #8B0000;     /* Rouge foncé */
+  --text-color: #1A1A1A;       /* Noir profond */
+  --bg-color: #F5F5DC;         /* Beige clair */
+  --card-bg: #FFFFFF;          /* Blanc pur */
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  --heading-color: #5D4037;    /* Marron foncé */
+  --label-color: #2C3E50;      /* Bleu foncé */
+  --error-color: #D32F2F;      /* Rouge erreur */
+}
+
+[data-theme="dark"] {
+  --primary-color: #4A90E2;    /* Bleu lumineux */
+  --secondary-color: #E6A23C;  /* Orange doré */
+  --accent-color: #FFD700;     /* Or vif */
+  --light-color: #2C3E50;      /* Bleu foncé */
+  --text-color: #FFFFFF;       /* Blanc pur */
+  --bg-color: #1A1A1A;         /* Noir profond */
+  --card-bg: #2D2D2D;          /* Gris foncé */
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --heading-color: #FFFFFF;    /* Blanc */
+  --label-color: #FFFFFF;      /* Blanc */
+  --error-color: #EF5350;      /* Rouge clair erreur */
+}
+
+/* Général */
+body {
+  font-family: 'Crimson Text', serif;
+  background-color: var(--bg-color);
+  background-image: url('../images/texture-cuir.png');
+  color: var(--text-color);
+  margin: 0;
+  padding: 20px;
+}
+
+/* Conteneur principal */
+.container {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  box-shadow: 0 0 20px var(--shadow-color);
+  padding: 30px;
+  margin: 30px auto;
+  max-width: 1200px;
+}
+
+[data-theme="dark"] .container {
+  background-color: rgba(45, 45, 45, 0.9);
+}
+
+/* En-tête (assumé via vue_header.php) */
+header {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 15px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: var(--heading-color);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+header nav a {
+  color: var(--text-color);
+  text-decoration: none;
+  margin: 0 15px;
+  font-size: 16px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+header nav a::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent-color);
+  transition: width 0.3s ease;
+}
+
+header nav a:hover::before {
+  width: 100%;
+}
+
+header nav a:hover {
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] header {
+  background: linear-gradient(45deg, #4A90E2, #63B3ED);
+}
+
+[data-theme="dark"] header nav a {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] header nav a:hover {
+  color: #FFD700;
+}
+
+/* Conteneur du calendrier */
+#calendar {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+/* Styles FullCalendar */
+.fc .fc-toolbar {
+  background: linear-gradient(45deg, var(--primary-color), #3498db);
+  color: var(--text-color);
+  padding: 10px;
+  border-radius: 8px 8px 0 0;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--heading-color);
+}
+
+.fc .fc-button {
+  background: linear-gradient(45deg, var(--secondary-color), #f1c40f);
+  border: none;
+  padding: 8px 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-color);
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.fc .fc-button:hover {
+  background: linear-gradient(45deg, var(--accent-color), #e1b107);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.fc .fc-button:focus {
+  outline: none;
+  box-shadow: 0 0 5px var(--shadow-color);
+}
+
+.fc .fc-daygrid-day {
+  background-color: var(--card-bg);
+  border: 1px solid var(--light-color);
+}
+
+.fc .fc-daygrid-day:hover {
+  background-color: rgba(139, 69, 19, 0.1);
+}
+
+.fc .fc-event {
+  background: linear-gradient(45deg, var(--primary-color), #3498db);
+  border: none;
+  color: var(--text-color);
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.fc .fc-event:hover {
+  background: linear-gradient(45deg, var(--accent-color), #f1c40f);
+  transform: scale(1.02);
+}
+
+/* Mode sombre pour FullCalendar */
+[data-theme="dark"] .fc .fc-toolbar {
+  background: linear-gradient(45deg, #4A90E2, #63B3ED);
+}
+
+[data-theme="dark"] .fc .fc-button {
+  background: linear-gradient(45deg, #E6A23C, #F6E05E);
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] .fc .fc-event {
+  background: linear-gradient(45deg, #4A90E2, #63B3ED);
+}
+
+[data-theme="dark"] .fc .fc-event:hover {
+  background: linear-gradient(45deg, #FFD700, #E6A23C);
+}
+
+/* Formulaire d'événements */
+#eventForm {
+  max-width: 400px;
+  margin: 20px auto;
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#eventForm h3 {
+  color: var(--heading-color);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#eventForm .form-group {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+#eventForm label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--label-color);
+}
+
+#eventForm .form-control {
+  border: 2px solid var(--accent-color);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-color);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#eventForm .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(218, 165, 32, 0.3);
+  background: var(--card-bg);
+}
+
+#eventForm .form-control.is-invalid {
+  border-color: var(--error-color);
+}
+
+#eventForm .invalid-feedback {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Liste d'autocomplétion */
+#nom_list_idCoursI {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid var(--light-color);
+  border-radius: 4px;
+  margin-top: 5px;
+  background: var(--card-bg);
+}
+
+#nom_list_idCoursI .list-group-item {
+  padding: 10px;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+#nom_list_idCoursI .list-group-item:hover {
+  background-color: rgba(139, 69, 19, 0.1);
+  transform: scale(1.02);
+}
+
+[data-theme="dark"] #nom_list_idCoursI {
+  border-color: #363636;
+}
+
+[data-theme="dark"] #nom_list_idCoursI .list-group-item {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] #nom_list_idCoursI .list-group-item:hover {
+  background-color: #404040;
+}
+
+/* Boutons du formulaire */
+#eventForm .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#eventForm .btn-success {
+  background: linear-gradient(45deg, var(--success-color), #2ecc71);
+  color: var(--text-color);
+}
+
+#eventForm .btn-success:hover {
+  background: linear-gradient(45deg, #2ecc71, var(--success-color));
+}
+
+#eventForm .btn-warning {
+  background: linear-gradient(45deg, var(--accent-color), #f1c40f);
+  color: var(--text-color);
+}
+
+#eventForm .btn-warning:hover {
+  background: linear-gradient(45deg, #f1c40f, var(--accent-color));
+}
+
+#eventForm .btn-danger {
+  background: linear-gradient(45deg, var(--danger-color), #e74c3c);
+  color: var(--text-color);
+}
+
+#eventForm .btn-danger:hover {
+  background: linear-gradient(45deg, #e74c3c, var(--danger-color));
+}
+
+#eventForm .btn-secondary {
+  background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+  color: var(--text-color);
+}
+
+#eventForm .btn-secondary:hover {
+  background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+}
+
+/* Mode sombre pour les boutons */
+[data-theme="dark"] #eventForm .btn {
+  color: #FFFFFF;
+}
+
+[data-theme="dark"] #eventForm .btn-success {
+  background: linear-gradient(45deg, #2E7D32, #66BB6A);
+}
+
+[data-theme="dark"] #eventForm .btn-warning {
+  background: linear-gradient(45deg, #E6A23C, #F6E05E);
+}
+
+[data-theme="dark"] #eventForm .btn-danger {
+  background: linear-gradient(45deg, #FF5252, #FF7676);
+}
+
+[data-theme="dark"] #eventForm .btn-secondary {
+  background: linear-gradient(45deg, #718096, #4A5568);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+      padding: 15px;
+  }
+
+  #calendar {
+      padding: 10px;
+  }
+
+  .fc .fc-toolbar {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .fc .fc-toolbar-title {
+      margin-bottom: 10px;
+  }
+
+  .fc .fc-button {
+      margin: 5px;
+  }
+
+  #eventForm {
+      max-width: 100%;
+      padding: 15px;
+  }
+
+  #eventForm .d-flex {
+      flex-direction: column;
+      align-items: stretch;
+  }
+
+  #eventForm .btn {
+      width: 100%;
+      margin: 5px 0;
+      padding: 12px;
+  }
+}

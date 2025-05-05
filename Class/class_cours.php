@@ -140,7 +140,7 @@ class Cours
 
     public function getCours_CavalierP($idCours) {
         $Con = connexionPDO();
-        $SQL = 'SELECT RefCavalier FROM `inscrit` WHERE RefCours  = :idCours';
+        $SQL = 'SELECT RefCavalier FROM `inscrit` WHERE RefCours  = :idCours and Supprime = 0';
         $req = $Con->prepare($SQL);
         $data = ['idCours' => $idCours];
         $req->execute($data);
@@ -159,15 +159,18 @@ class Cours
 
     public function edit(){
         $Con = connexionPDO(); // Connection PDO
-        $SQL = "UPDATE cours SET Libcours = :Libcours, jour = :jour, HD = :HD, HF = :HF, RefGalop = :idGalop
-                    WHERE idCours = :idCours";
+        $SQL = "UPDATE cours SET Libcours= :Libcours, jour= :jour, HD= :HD, HF= :HF, RefGalop= :idGalop WHERE idCours= :idCours";
         $req = $Con->prepare($SQL);
     
         //variables php -> sql
-        $data = [":idCours" =>$this->idcours,":Libcours" => $this->libcours, 
-        ":jour" => $this->jourC,":HD" => $this->horaireD, ":HF" => $this->horaireF, ":idGalop" => $this->idGalop];
+        $data = [":idCours" =>$this->idcours,
+        ":Libcours" => $this->libcours,
+        ":jour" => $this->jourC,
+        ":HD" => $this->horaireD,
+        ":HF" => $this->horaireF,
+        ":idGalop" => $this->idGalop];
 
-        $req->execute($data);
+        return $req->execute($data);
     
     }
     public function add(){

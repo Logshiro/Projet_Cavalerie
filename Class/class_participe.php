@@ -66,6 +66,21 @@ class Participe
         return $req->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function Participe_idCC($refcours, $refcavalier){
+        $Con = connexionPDO(); // Connexion PDO
+        $SQL = "Select idCourSeance,idCoursCours,RefCavalier,present from participe where
+        RefCavalier = :RefCavalier AND idCoursCours = :RefCours";
+        //On prépare la requête
+        $req = $Con->prepare($SQL);
+        //On lie les paramètres
+        $req->bindParam(':RefCours', $refcours, PDO::PARAM_INT);
+        $req->bindParam(':RefCavalier', $refcavalier, PDO::PARAM_INT);
+        //On exécute la requête
+        $req->execute();
+        //On récupère le 1° enregistrement sous forme de tableau
+        return $req->fetchall(PDO::FETCH_ASSOC);
+    }
+
     public function getCavalierParticipe($refcavalier){
         $Con = connexionPDO(); // Connexion PDO
         $SQL = "SELECT NomCavalier FROM cavalier WHERE idCavalier = :RefCavalier";
@@ -111,7 +126,7 @@ class Participe
 
     public function add($idSeance,$idCours,$cleanRefCavalier){
         $Con = connexionPDO(); // Connexion PDO idCourSeance,idCoursCours,RefCavalier
-
+        if ($this->Participe_idCC($idCours, $cleanRefCavalier) == null){
         // Ensure idSeance is a single integer value
         if (is_array($idSeance)) {
             throw new Exception("idCourSeance should be a single integer value, not an array.");
@@ -143,10 +158,23 @@ class Participe
 
         //On exécute la requête
         return $req->execute();
+
+    }else{
+        $Con = connexionPDO(); // Connexion PDO
+        $SQL = "Update participe set Supprime = 0 where RefCavalier = :RefCavalier and idCoursCours = :idCoursCours and Supprime = 1";
+        //On prépare la requête
+        $req = $Con->prepare($SQL);
+        //On lie les paramètres
+        $req->bindParam(':idCoursCours', $idCours, PDO::PARAM_INT);
+        $req->bindParam(':RefCavalier', $cleanRefCavalier, PDO::PARAM_INT);
+        //On exécute la requête
+        return $req->execute();
+    }
     }
 
     public function edit($id1, $id2, $id3) {
         $Con = connexionPDO(); // Connexion PDO
+        if ($this->Participe_idCC($id2, $id3) == null){
         $SQL = "Update participe set idCourSeance = :idCourSeance, idCoursCours = :idCoursCours
         RefCavalier = :RefCavalier where idCourSeance = :id1 and idCoursCours = :id2 and
         RefCavalier = :id3";
@@ -161,6 +189,18 @@ class Participe
         $req->bindParam(':id3', $id3, PDO::PARAM_INT);
         //On exécute la requête
         return $req->execute();
+
+    }else{
+        $Con = connexionPDO(); // Connexion PDO
+        $SQL = "Update participe set Supprime = 0 where RefCavalier = :RefCavalier and idCoursCours = :idCoursCours and Supprime = 1";
+        //On prépare la requête
+        $req = $Con->prepare($SQL);
+        //On lie les paramètres
+        $req->bindParam(':idCoursCours', $id2, PDO::PARAM_INT);
+        $req->bindParam(':RefCavalier', $id3, PDO::PARAM_INT);
+        //On exécute la requête
+        return $req->execute();
+    }
     }
 
     public function delete() {
@@ -170,7 +210,20 @@ class Participe
         //On prépare la requête
         $req = $Con->prepare($SQL);
         //On lie les paramètres
-        $req->bindParam(':idCourSeance', $this->refcavalier, PDO::PARAM_INT);
+        $req->bindParam(':idCourSeance', $this->$refseance, PDO::PARAM_INT);
+        $req->bindParam(':idCoursCours', $this->refcours, PDO::PARAM_INT);
+        $req->bindParam('RefCavalier', $this->refcavalier,PDO::PARAM_INT);
+        //On exécute la requête
+        return $req->execute();
+    }
+
+    public function delete_idCava() {
+        $Con = connexionPDO(); // Connexion PDO
+        $SQL = "Update participe set Supprime = 1 where idCoursCours =
+        :idCoursCours and RefCavalier = :RefCavalier";
+        //On prépare la requête
+        $req = $Con->prepare($SQL);
+        //On lie les paramètres
         $req->bindParam(':idCoursCours', $this->refcours, PDO::PARAM_INT);
         $req->bindParam('RefCavalier', $this->refcavalier,PDO::PARAM_INT);
         //On exécute la requête
