@@ -12,29 +12,60 @@
 </head>
 <body>
     <?php require 'vue_header.php'; ?>
-
     <main class="container">
         <div id="calendar"></div>
-
         <form id="eventForm" class="mb-4 d-none" aria-label="Formulaire de gestion des événements">
-            <h3 id="formTitle">Ajouter un événement</h3>
+            <h3 id="formTitle">Voir un événement</h3>
 
             <div class="form-group mb-3">
-                <label for="RefCours">Cours</label>
-                <input type="text" class="form-control" id="RefCours" placeholder="Rechercher un cours" onkeyup="autocompletCoursI()" required aria-describedby="RefCoursError">
-                <div id="nom_list_idCoursI" class="list-group"></div>
-                <input type="hidden" class="form-control" name="idCours" id="idCours" readonly required aria-describedby="idCoursError">
-                <div id="RefCoursError" class="invalid-feedback">Veuillez sélectionner un cours valide.</div>
+                <label for="RefCours">Nom du Cours</label>
+                <input type="text" class="form-control" id="RefCours" placeholder="Nom du cours" required aria-describedby="RefCoursError">
+                <div id="RefCoursError" class="invalid-feedback">Veuillez entrer un nom de cours valide.</div>
             </div>
 
             <div class="form-group mb-3">
-                <label for="selectedDate">Date de l'événement</label>
-                <input type="date" class="form-control" id="selectedDate" readonly required aria-describedby="selectedDateError">
+                <label for="jour">Jour</label>
+                <select class="form-control" id="jour" required aria-describedby="jourError">
+                    <option value="">Sélectionner un jour</option>
+                    <option value="Lundi">Lundi</option>
+                    <option value="Mardi">Mardi</option>
+                    <option value="Mercredi">Mercredi</option>
+                    <option value="Jeudi">Jeudi</option>
+                    <option value="Vendredi">Vendredi</option>
+                    <option value="Samedi">Samedi</option>
+                    <option value="Dimanche">Dimanche</option>
+                </select>
+                <div id="jourError" class="invalid-feedback">Veuillez sélectionner un jour.</div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="HD">Heure de début</label>
+                <input type="time" class="form-control" id="HD" required aria-describedby="HDError">
+                <div id="HDError" class="invalid-feedback">Veuillez entrer une heure de début valide.</div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="HF">Heure de fin</label>
+                <input type="time" class="form-control" id="HF" required aria-describedby="HFError">
+                <div id="HFError" class="invalid-feedback">Veuillez entrer une heure de fin valide.</div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="selectedDate">Date du Cours</label>
+                <input type="date" class="form-control" id="selectedDate" required aria-describedby="selectedDateError">
                 <div id="selectedDateError" class="invalid-feedback">Veuillez sélectionner une date.</div>
             </div>
 
+            <div class="form-group mb-3 cavaliers-section d-none">
+                <label>Cavaliers inscrits</label>
+                <ul id="cavaliersList" class="list-group"></ul>
+            </div>
+
+            <input type="hidden" id="idCours" name="idCours">
+            <input type="hidden" id="idCourSeance" name="idCourSeance">
+
             <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <button id="addEventBtn" class="btn btn-success" type="button" aria-label="Ajouter un événement">Ajouter</button>
+                <button id="viewBtn" class="btn btn-info d-none" type="button" aria-label="Voir l'événement">Voir</button>
                 <button id="modifyBtn" class="btn btn-warning d-none" type="button" aria-label="Modifier l'événement">Modifier</button>
                 <button id="deleteBtn" class="btn btn-danger d-none" type="button" aria-label="Supprimer l'événement">Supprimer</button>
                 <button id="cancelEventBtn" class="btn btn-secondary" type="button" aria-label="Annuler la sélection">Annuler</button>
@@ -51,11 +82,15 @@
             var calendarEl = document.getElementById('calendar');
             var eventForm = document.getElementById('eventForm');
             var formTitle = document.getElementById('formTitle');
+            var cavaliersSection = document.querySelector('.cavaliers-section');
+            var cavaliersList = document.getElementById('cavaliersList');
             var selectedEvent = null;
-            var selectedDate = null;
+            var currentMode = 'view';
 
-            // Fonction pour formater une date en YYYY-MM-DD dans le fuseau horaire local
             function formatLocalDate(date) {
+                if (!(date instanceof Date)) {
+                    date = new Date(date);
+                }
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
@@ -70,17 +105,28 @@
                 },
                 initialDate: new Date().toISOString().slice(0, 10),
                 navLinks: true,
-                selectable: true,
+                selectable: false,
                 editable: true,
                 events: function(fetchInfo, successCallback, failureCallback) {
-                    fetch('../Class/class_calendrier2.php')
+                    fetch('../Class/class_calendrier2.php', {
+                        headers: { 'Accept': 'application/json' }
+                    })
                         .then(response => {
+                            console.log('Statut HTTP :', response.status);
                             if (!response.ok) {
                                 throw new Error('Erreur HTTP : ' + response.status);
                             }
-                            return response.json();
+                            return response.text();
                         })
-                        .then(data => {
+                        .then(text => {
+                            console.log('Réponse brute :', text);
+                            let data;
+                            try {
+                                data = JSON.parse(text);
+                            } catch (e) {
+                                console.error('Erreur JSON :', e, 'Réponse brute :', text);
+                                throw new Error('Réponse JSON invalide');
+                            }
                             console.log('Événements reçus :', data);
                             if (data.success === false) {
                                 alert('Erreur serveur : ' + data.message);
@@ -91,7 +137,6 @@
                                 console.warn('Aucun événement à afficher');
                             }
                             data.forEach(event => {
-                                // Convertir la date en objet Date local
                                 event.start = new Date(event.start + 'T00:00:00');
                             });
                             successCallback(data);
@@ -102,118 +147,130 @@
                             failureCallback(error);
                         });
                 },
-                select: function(arg) {
-                    showEventForm(arg.startStr);
-                },
                 eventClick: function(arg) {
-                    showModifyDeleteForm(arg);
+                    showViewForm(arg);
                 },
                 eventDrop: function(arg) {
-                    updateEvent(arg);
+                    updateEventDate(arg);
                 }
             });
 
-            function showEventForm(date) {
-                eventForm.reset();
-                eventForm.querySelectorAll('.invalid-feedback').forEach(error => error.style.display = 'none');
-                eventForm.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
-                document.getElementById('selectedDate').value = date;
-                selectedDate = date;
-                formTitle.textContent = 'Ajouter un événement';
-
-                eventForm.classList.remove('d-none');
-                document.getElementById('addEventBtn').classList.remove('d-none');
-                document.getElementById('modifyBtn').classList.add('d-none');
-                document.getElementById('deleteBtn').classList.add('d-none');
-
-                document.getElementById('addEventBtn').onclick = function() {
-                    addEvent(selectedDate);
-                };
-
-                document.getElementById('cancelEventBtn').onclick = function() {
-                    eventForm.classList.add('d-none');
-                };
-
-                calendar.unselect();
+            function fetchCavaliers(idCours) {
+                cavaliersList.innerHTML = '<li class="list-group-item">Chargement...</li>';
+                fetch('../Class/class_calendrier2.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
+                    body: new URLSearchParams({
+                        action: 'getCavaliers',
+                        idCours: idCours
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Cavaliers reçus :', data);
+                    cavaliersList.innerHTML = '';
+                    if (!data.success) {
+                        cavaliersList.innerHTML = '<li class="list-group-item text-danger">Erreur : ' + data.message + '</li>';
+                        return;
+                    }
+                    if (data.data.length === 0) {
+                        cavaliersList.innerHTML = '<li class="list-group-item">Aucun cavalier inscrit</li>';
+                    } else {
+                        data.data.forEach(cavalier => {
+                            var item = document.createElement('li');
+                            item.className = 'list-group-item';
+                            item.textContent = cavalier.NomCavalier + ' ' + cavalier.PrenomCavalier;
+                            cavaliersList.appendChild(item);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des cavaliers :', error);
+                    cavaliersList.innerHTML = '<li class="list-group-item text-danger">Erreur lors de la récupération des cavaliers</li>';
+                });
             }
 
-            function showModifyDeleteForm(arg) {
-                selectedEvent = arg.event;
+            function setFormMode(mode) {
+                currentMode = mode;
+                const inputs = [document.getElementById('RefCours'), document.getElementById('jour'),
+                               document.getElementById('HD'), document.getElementById('HF'), document.getElementById('selectedDate')];
+                const viewBtn = document.getElementById('viewBtn');
+                const modifyBtn = document.getElementById('modifyBtn');
+                const deleteBtn = document.getElementById('deleteBtn');
 
-                // Formater la date en local pour éviter le décalage
-                const localDate = formatLocalDate(selectedEvent.start);
-                console.log('Date de l\'événement sélectionné :', selectedEvent.start, '-> Formatée :', localDate);
+                viewBtn.classList.add('d-none');
+                modifyBtn.classList.add('d-none');
+                deleteBtn.classList.add('d-none');
+                inputs.forEach(input => {
+                    input.classList.remove('is-invalid');
+                    input.nextElementSibling.style.display = 'none';
+                });
 
-                document.getElementById('RefCours').value = selectedEvent.title || '';
-                document.getElementById('idCours').value = selectedEvent.extendedProps.idCours || '';
-                document.getElementById('selectedDate').value = localDate;
-                formTitle.textContent = 'Modifier un événement';
-
-                document.getElementById('addEventBtn').classList.add('d-none');
-                document.getElementById('modifyBtn').classList.remove('d-none');
-                document.getElementById('deleteBtn').classList.remove('d-none');
+                if (mode === 'view') {
+                    formTitle.textContent = 'Voir un événement';
+                    inputs.forEach(input => input.disabled = true);
+                    viewBtn.classList.add('d-none');
+                    modifyBtn.classList.remove('d-none');
+                    deleteBtn.classList.remove('d-none');
+                    cavaliersSection.classList.remove('d-none');
+                } else if (mode === 'modify') {
+                    formTitle.textContent = 'Modifier un événement';
+                    inputs.forEach(input => input.disabled = false);
+                    viewBtn.classList.remove('d-none');
+                    modifyBtn.classList.remove('d-none');
+                    deleteBtn.classList.remove('d-none');
+                    cavaliersSection.classList.add('d-none');
+                } else if (mode === 'delete') {
+                    formTitle.textContent = 'Supprimer un événement';
+                    inputs.forEach(input => input.disabled = true);
+                    viewBtn.classList.remove('d-none');
+                    modifyBtn.classList.remove('d-none');
+                    deleteBtn.classList.remove('d-none');
+                    cavaliersSection.classList.add('d-none');
+                }
 
                 eventForm.classList.remove('d-none');
+            }
+
+            function showViewForm(arg) {
+                selectedEvent = arg.event;
+                const localDate = formatLocalDate(selectedEvent.start);
+                
+                const title = selectedEvent.title;
+                const titleParts = title.match(/(.*) \((.*) (\d{2}:\d{2})-(\d{2}:\d{2})\)/);
+                const libCours = titleParts ? titleParts[1] : '';
+                const jour = titleParts ? titleParts[2] : '';
+                const hd = titleParts ? titleParts[3] : '';
+                const hf = titleParts ? titleParts[4] : '';
+
+                document.getElementById('RefCours').value = libCours;
+                document.getElementById('jour').value = jour;
+                document.getElementById('HD').value = hd;
+                document.getElementById('HF').value = hf;
+                document.getElementById('selectedDate').value = localDate;
+                document.getElementById('idCours').value = selectedEvent.extendedProps.idCours || '';
+                document.getElementById('idCourSeance').value = selectedEvent.id;
+
+                setFormMode('view');
+                fetchCavaliers(selectedEvent.extendedProps.idCours);
 
                 const events = document.querySelectorAll('.fc-event');
                 events.forEach(event => event.style.backgroundColor = '');
                 arg.el.style.backgroundColor = '#f0f0f0';
             }
 
-            function addEvent(date) {
-                var idCours = document.getElementById('idCours').value;
-                var addBtn = document.getElementById('addEventBtn');
-
-                if (!idCours) {
-                    document.getElementById('idCours').classList.add('is-invalid');
-                    document.getElementById('idCoursError').style.display = 'block';
-                    return;
-                }
-
-                addBtn.disabled = true;
-                addBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...';
-                fetch('../Class/class_calendrier2.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        action: 'add',
-                        idCours: idCours,
-                        dateCours: date
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Réponse ajout événement :', data);
-                    if (!data.success) {
-                        alert(data.message);
-                        return;
-                    }
-                    calendar.refetchEvents();
-                    alert(data.message);
-                    eventForm.classList.add('d-none');
-                })
-                .catch(error => {
-                    console.error('Erreur lors de l\'ajout de l\'événement :', error);
-                    alert('Une erreur est survenue lors de l\'ajout de l\'événement');
-                })
-                .finally(() => {
-                    addBtn.disabled = false;
-                    addBtn.innerHTML = 'Ajouter';
-                });
-            }
-
-            function updateEvent(arg) {
+            function updateEventDate(arg) {
                 let startDate = arg.event.start;
                 let formattedDate = formatLocalDate(startDate);
                 var modifyBtn = document.getElementById('modifyBtn');
 
-                console.log('Mise à jour événement, date envoyée :', formattedDate);
+                console.log('Mise à jour de la date, date envoyée :', formattedDate);
 
                 modifyBtn.disabled = true;
                 modifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...';
                 fetch('../Class/class_calendrier2.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
                     body: new URLSearchParams({
                         action: 'update',
                         idCourSeance: arg.event.id,
@@ -226,6 +283,7 @@
                     console.log('Réponse mise à jour événement :', data);
                     if (!data.success) {
                         alert(data.message);
+                        arg.revert();
                         return;
                     }
                     console.log(data.message);
@@ -233,6 +291,7 @@
                 .catch(error => {
                     console.error('Erreur lors de la mise à jour de l\'événement :', error);
                     alert('Une erreur est survenue lors de la mise à jour de l\'événement');
+                    arg.revert();
                 })
                 .finally(() => {
                     modifyBtn.disabled = false;
@@ -240,29 +299,53 @@
                 });
             }
 
+            document.getElementById('viewBtn').addEventListener('click', function() {
+                setFormMode('view');
+                fetchCavaliers(selectedEvent.extendedProps.idCours);
+            });
+
             document.getElementById('modifyBtn').addEventListener('click', function() {
-                if (selectedEvent) {
-                    var newIdCours = document.getElementById('idCours').value;
+                if (currentMode !== 'modify') {
+                    setFormMode('modify');
+                } else if (selectedEvent) {
+                    var newLibCours = document.getElementById('RefCours').value;
+                    var newJour = document.getElementById('jour').value;
+                    var newHD = document.getElementById('HD').value;
+                    var newHF = document.getElementById('HF').value;
                     var newDate = document.getElementById('selectedDate').value;
+                    var idCours = document.getElementById('idCours').value;
+                    var idCourSeance = document.getElementById('idCourSeance').value;
                     var modifyBtn = document.getElementById('modifyBtn');
 
-                    if (!newIdCours) {
-                        document.getElementById('idCours').classList.add('is-invalid');
-                        document.getElementById('idCoursError').style.display = 'block';
+                    if (!newLibCours || !newJour || !newHD || !newHF || !newDate || !idCours || !idCourSeance) {
+                        document.getElementById('RefCours').classList.add('is-invalid');
+                        document.getElementById('jour').classList.add('is-invalid');
+                        document.getElementById('HD').classList.add('is-invalid');
+                        document.getElementById('HF').classList.add('is-invalid');
+                        document.getElementById('selectedDate').classList.add('is-invalid');
+                        document.getElementById('RefCoursError').style.display = 'block';
+                        document.getElementById('jourError').style.display = 'block';
+                        document.getElementById('HDError').style.display = 'block';
+                        document.getElementById('HFError').style.display = 'block';
+                        document.getElementById('selectedDateError').style.display = 'block';
                         return;
                     }
 
-                    console.log('Modification événement, date envoyée :', newDate);
+                    console.log('Modification événement, données envoyées :', { idCourSeance, idCours, newLibCours, newJour, newHD, newHF, newDate });
 
                     modifyBtn.disabled = true;
                     modifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...';
                     fetch('../Class/class_calendrier2.php', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
                         body: new URLSearchParams({
                             action: 'update',
-                            idCourSeance: selectedEvent.id,
-                            idCours: newIdCours,
+                            idCourSeance: idCourSeance,
+                            idCours: idCours,
+                            libCours: newLibCours,
+                            jour: newJour,
+                            HD: newHD,
+                            HF: newHF,
                             dateCours: newDate
                         })
                     })
@@ -275,7 +358,7 @@
                         }
                         calendar.refetchEvents();
                         alert(data.message);
-                        resetModifyDeleteButtons();
+                        resetForm();
                         eventForm.classList.add('d-none');
                     })
                     .catch(error => {
@@ -290,13 +373,15 @@
             });
 
             document.getElementById('deleteBtn').addEventListener('click', function() {
-                if (selectedEvent && confirm('Voulez-vous vraiment supprimer cet événement ?')) {
+                if (currentMode !== 'delete') {
+                    setFormMode('delete');
+                } else if (selectedEvent && confirm('Voulez-vous vraiment supprimer cet événement ?')) {
                     var deleteBtn = document.getElementById('deleteBtn');
                     deleteBtn.disabled = true;
                     deleteBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...';
                     fetch('../Class/class_calendrier2.php', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
                         body: new URLSearchParams({
                             action: 'delete',
                             idCourSeance: selectedEvent.id
@@ -311,7 +396,7 @@
                         }
                         selectedEvent.remove();
                         alert(data.message);
-                        resetModifyDeleteButtons();
+                        resetForm();
                         eventForm.classList.add('d-none');
                     })
                     .catch(error => {
@@ -325,58 +410,31 @@
                 }
             });
 
-            function resetModifyDeleteButtons() {
+            document.getElementById('cancelEventBtn').addEventListener('click', function() {
+                resetForm();
+                eventForm.classList.add('d-none');
+            });
+
+            function resetForm() {
                 selectedEvent = null;
-                document.getElementById('addEventBtn').classList.remove('d-none');
+                currentMode = 'view';
+                formTitle.textContent = 'Voir un événement';
+                eventForm.reset();
+                cavaliersSection.classList.add('d-none');
+                cavaliersList.innerHTML = '';
+                const inputs = [document.getElementById('RefCours'), document.getElementById('jour'),
+                               document.getElementById('HD'), document.getElementById('HF'), document.getElementById('selectedDate')];
+                inputs.forEach(input => {
+                    input.classList.remove('is-invalid');
+                    input.disabled = false;
+                    input.nextElementSibling.style.display = 'none';
+                });
+                document.getElementById('viewBtn').classList.add('d-none');
                 document.getElementById('modifyBtn').classList.add('d-none');
                 document.getElementById('deleteBtn').classList.add('d-none');
-                formTitle.textContent = 'Ajouter un événement';
+                const events = document.querySelectorAll('.fc-event');
+                events.forEach(event => event.style.backgroundColor = '');
             }
-
-            window.autocompletCoursI = function() {
-                var query = document.getElementById('RefCours').value;
-                var list = document.getElementById('nom_list_idCoursI');
-                list.innerHTML = '';
-                if (query.length < 2) {
-                    return;
-                }
-
-                fetch('../Class/class_calendrier2.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ action: 'getCourses' })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Cours reçus pour autocomplétion :', data);
-                    if (!data.success) {
-                        list.innerHTML = '<div class="list-group-item text-danger">Erreur : ' + data.message + '</div>';
-                        return;
-                    }
-
-                    data.data.forEach(course => {
-                        if (course.LibCours.toLowerCase().includes(query.toLowerCase()) || 
-                            course.jour.toLowerCase().includes(query.toLowerCase())) {
-                            var item = document.createElement('div');
-                            item.className = 'list-group-item list-group-item-action';
-                            item.textContent = course.LibCours + ' (' + course.jour + ' ' + course.HD + '-' + course.HF + ')';
-                            item.dataset.id = course.idCours;
-                            item.onclick = function() {
-                                document.getElementById('RefCours').value = item.textContent;
-                                document.getElementById('idCours').value = course.idCours;
-                                list.innerHTML = '';
-                                document.getElementById('RefCours').classList.remove('is-invalid');
-                                document.getElementById('RefCoursError').style.display = 'none';
-                            };
-                            list.appendChild(item);
-                        }
-                    });
-                })
-                .catch(error => {
-                    console.error('Erreur lors de l\'autocomplétion :', error);
-                    list.innerHTML = '<div class="list-group-item text-danger">Erreur lors de la recherche</div>';
-                });
-            };
 
             calendar.render();
         });

@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../PDO/bdd.inc.php';
 
 class Calendrier {
@@ -29,7 +30,7 @@ class Calendrier {
                 return [];
             }
 
-            return array_map(function ($event) {
+            $formattedEvents = array_map(function ($event) {
                 $title = $event['nomCours'] . ' (' . $event['jour'] . ' ' . $event['HD'] . '-' . $event['HF'] . ')';
                 return [
                     'id' => $event['idCourSeance'],
@@ -39,39 +40,49 @@ class Calendrier {
                     'allDay' => true
                 ];
             }, $events);
+
+            error_log('Événements formatés : ' . json_encode($formattedEvents));
+            return $formattedEvents;
         } catch (Exception $e) {
             error_log('Erreur dans getEvents : ' . $e->getMessage());
             return ['success' => false, 'message' => 'Erreur lors de la récupération des événements : ' . $e->getMessage()];
         }
     }
 
-    public function getAvailableCourses() {
+    public function getRegisteredCavaliers($idCours) {
         try {
             $Con = connexionPDO();
             if (!$Con) {
                 throw new Exception('Échec de la connexion à la base de données');
             }
 
-            $SQL = "SELECT idCours, LibCours, jour, HD, HF FROM cours WHERE Supprime = 0";
-            $req = $Con->prepare($SQL);
-            $req->execute();
-            $courses = $req->fetchAll(PDO::FETCH_ASSOC);
+            $SQL = "SELECT 
+                        cavalier.NomCavalier,
+                        cavalier.PrenomCavalier
+                    FROM inscrit
+                    JOIN cavalier ON inscrit.RefCavalier = cavalier.idCavalier
+                    WHERE inscrit.RefCours = :idCours
+                    AND inscrit.Supprime = 0
+                    AND cavalier.Supprime = 0";
+            $stmt = $Con->prepare($SQL);
+            $stmt->bindParam(':idCours', $idCours, PDO::PARAM_INT);
+            $stmt->execute();
+            $cavaliers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            return ['success' => true, 'data' => $courses];
+            return ['success' => true, 'data' => $cavaliers];
         } catch (Exception $e) {
-            error_log('Erreur dans getAvailableCourses : ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de la récupération des cours : ' . $e->getMessage()];
+            error_log('Erreur dans getRegisteredCavaliers : ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Erreur lors de la récupération des cavaliers : ' . $e->getMessage()];
         }
     }
 
-    public function addEvent($idCours, $dateCours) {
+    public function updateEvent($idCourSeance, $idCours, $libCours, $jour, $HD, $HF, $dateCours) {
         try {
             $Con = connexionPDO();
             if (!$Con) {
                 throw new Exception('Échec de la connexion à la base de données');
             }
 
-            // Vérifier si le cours existe et n'est pas supprimé
             $SQL = "SELECT idCours FROM cours WHERE idCours = :idCours AND Supprime = 0";
             $stmt = $Con->prepare($SQL);
             $stmt->bindParam(':idCours', $idCours, PDO::PARAM_INT);
@@ -80,16 +91,25 @@ class Calendrier {
                 throw new Exception('Le cours spécifié n\'existe pas ou est supprimé');
             }
 
-            $SQL = "INSERT INTO calendrier (idCoursCours, DateCours) VALUES (:idCours, :dateCours)";
+            $SQL = "UPDATE cours SET LibCours = :libCours, jour = :jour, HD = :HD, HF = :HF WHERE idCours = :idCours";
             $stmt = $Con->prepare($SQL);
+            $stmt->bindParam(':libCours', $libCours, PDO::PARAM_STR);
+            $stmt->bindParam(':jour', $jour, PDO::PARAM_STR);
+            $stmt->bindParam(':HD', $HD, PDO::PARAM_STR);
+            $stmt->bindParam(':HF', $HF, PDO::PARAM_STR);
             $stmt->bindParam(':idCours', $idCours, PDO::PARAM_INT);
-            $stmt->bindParam(':dateCours', $dateCours, PDO::PARAM_STR);
             $stmt->execute();
 
-            return ['success' => true, 'message' => 'Événement ajouté avec succès'];
+            $SQL = "UPDATE calendrier SET DateCours = :dateCours WHERE idCourSeance = :idCourSeance";
+            $stmt = $Con->prepare($SQL);
+            $stmt->bindParam(':dateCours', $dateCours, PDO::PARAM_STR);
+            $stmt->bindParam(':idCourSeance', $idCourSeance, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return ['success' => true, 'message' => 'Événement mis à jour avec succès'];
         } catch (Exception $e) {
-            error_log('Erreur dans addEvent : ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de l\'ajout de l\'événement : ' . $e->getMessage()];
+            error_log('Erreur dans updateEvent : ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Erreur lors de la mise à jour de l\'événement : ' . $e->getMessage()];
         }
     }
 
@@ -112,36 +132,6 @@ class Calendrier {
         }
     }
 
-    public function updateEvent($idCourSeance, $idCours, $dateCours) {
-        try {
-            $Con = connexionPDO();
-            if (!$Con) {
-                throw new Exception('Échec de la connexion à la base de données');
-            }
-
-            // Vérifier si le cours existe et n'est pas supprimé
-            $SQL = "SELECT idCours FROM cours WHERE idCours = :idCours AND Supprime = 0";
-            $stmt = $Con->prepare($SQL);
-            $stmt->bindParam(':idCours', $idCours, PDO::PARAM_INT);
-            $stmt->execute();
-            if (!$stmt->fetch()) {
-                throw new Exception('Le cours spécifié n\'existe pas ou est supprimé');
-            }
-
-            $SQL = "UPDATE calendrier SET idCoursCours = :idCours, DateCours = :dateCours WHERE idCourSeance = :idCourSeance";
-            $stmt = $Con->prepare($SQL);
-            $stmt->bindParam(':idCourSeance', $idCourSeance, PDO::PARAM_INT);
-            $stmt->bindParam(':idCours', $idCours, PDO::PARAM_INT);
-            $stmt->bindParam(':dateCours', $dateCours, PDO::PARAM_STR);
-            $stmt->execute();
-
-            return ['success' => true, 'message' => 'Événement mis à jour avec succès'];
-        } catch (Exception $e) {
-            error_log('Erreur dans updateEvent : ' . $e->getMessage());
-            return ['success' => false, 'message' => 'Erreur lors de la mise à jour de l\'événement : ' . $e->getMessage()];
-        }
-    }
-
     public function removeTrigger() {
         try {
             $Con = connexionPDO();
@@ -161,28 +151,27 @@ class Calendrier {
 
 $calendrier = new Calendrier();
 
-// Supprimer le déclencheur au démarrage
 $calendrier->removeTrigger();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
     $action = $_POST['action'] ?? '';
 
     switch ($action) {
-        case 'add':
-            if (!isset($_POST['idCours']) || !isset($_POST['dateCours'])) {
-                echo json_encode(['success' => false, 'message' => 'Paramètres idCours ou dateCours manquants']);
-                exit;
-            }
-            echo json_encode($calendrier->addEvent((int)$_POST['idCours'], $_POST['dateCours']));
-            break;
-
         case 'update':
-            if (!isset($_POST['idCourSeance']) || !isset($_POST['idCours']) || !isset($_POST['dateCours'])) {
-                echo json_encode(['success' => false, 'message' => 'Paramètres idCourSeance, idCours ou dateCours manquants']);
+            if (!isset($_POST['idCourSeance']) || !isset($_POST['idCours']) || !isset($_POST['libCours']) || 
+                !isset($_POST['jour']) || !isset($_POST['HD']) || !isset($_POST['HF']) || !isset($_POST['dateCours'])) {
+                echo json_encode(['success' => false, 'message' => 'Paramètres manquants pour la mise à jour']);
                 exit;
             }
-            echo json_encode($calendrier->updateEvent((int)$_POST['idCourSeance'], (int)$_POST['idCours'], $_POST['dateCours']));
+            echo json_encode($calendrier->updateEvent(
+                (int)$_POST['idCourSeance'],
+                (int)$_POST['idCours'],
+                $_POST['libCours'],
+                $_POST['jour'],
+                $_POST['HD'],
+                $_POST['HF'],
+                $_POST['dateCours']
+            ));
             break;
 
         case 'delete':
@@ -193,8 +182,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode($calendrier->deleteEvent((int)$_POST['idCourSeance']));
             break;
 
-        case 'getCourses':
-            echo json_encode($calendrier->getAvailableCourses());
+        case 'getCavaliers':
+            if (!isset($_POST['idCours'])) {
+                echo json_encode(['success' => false, 'message' => 'Paramètre idCours manquant']);
+                exit;
+            }
+            echo json_encode($calendrier->getRegisteredCavaliers((int)$_POST['idCours']));
             break;
 
         default:
@@ -202,7 +195,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
     }
 } else {
-    header('Content-Type: application/json');
     echo json_encode($calendrier->getEvents());
 }
 ?>
