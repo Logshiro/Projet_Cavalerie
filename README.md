@@ -1,8 +1,14 @@
 # PROJET CENTRE EQUESTRE
 ## PROJET DE GROUPE
 <ul>
-  <li>
-    Quentin Mitou
+  <li strong>
+    Quentin
+  </li>
+  <li strong>
+    Tom
+  </li>
+  <li strong>
+    Leonard
   </li>
 </ul>
 
