@@ -4,7 +4,7 @@
   <li strong>
     Quentin
   </li>
-  <li strong>
+  <li type= "strong">
     Tom
   </li>
   <li strong>
