@@ -1,13 +1,13 @@
 # PROJET CENTRE EQUESTRE
 ## PROJET DE GROUPE
 <ul>
-  <li strong>
+  <li>
     Quentin
   </li>
-  <li style= "strong">
+  <li>
     Tom
   </li>
-  <li strong>
+  <li>
     Leonard
   </li>
 </ul>
